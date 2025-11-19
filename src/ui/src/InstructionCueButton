@@ -1,0 +1,77 @@
+/** InstructionCueButton – UI-only komponenta iSenses (2× větší tlačítko zobrazující instrukci, jakou barvu/znak má klient mačkat) */
+
+function InstructionCueButton({
+  size = 166 * 2,      // 2× klasické tlačítko
+  borderPx = 7,
+  radius = 16,         // lehce zaoblený čtverec
+  cueColor = null,     // "green" | "red" | "orange" | null
+  cueSymbol = "",      // např. "G", "R", "▲", "●", "S_"
+  disabled = false,
+  onClick,
+}) {
+  const COLORS = {
+    green:  "#00A499",
+    red:    "#D50032",
+    orange: "#F2A900",
+    neutral:"#FFFFFF",
+  };
+
+  const fill =
+    cueColor === "green"  ? COLORS.green  :
+    cueColor === "red"    ? COLORS.red    :
+    cueColor === "orange" ? COLORS.orange :
+                            COLORS.neutral;
+
+  const handleClick = (ev) => {
+    if (disabled) return;
+    onClick?.(ev);
+  };
+
+  return (
+    <button
+      id="instruction-cue"
+      onClick={handleClick}
+      disabled={disabled}
+      style={{
+        position: "relative",
+        width: size,
+        height: size,
+        background: fill,
+        border: `${borderPx}px solid #6CACE4`,
+        borderRadius: radius,
+        aspectRatio: "1 / 1",
+        cursor: disabled ? "default" : "pointer",
+        userSelect: "none",
+        transition:
+          "background-color 150ms, border-color 150ms, box-shadow 150ms, transform 100ms",
+        padding: 0,
+        boxShadow: "0 0 18px rgba(0,0,0,0.2)",
+        overflow: "hidden",
+      }}
+      aria-label="instruction cue"
+    >
+      {cueSymbol && (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontFamily:
+              "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+            fontWeight: 900,
+            fontSize: size * 0.35,
+            color: "#000",
+            textShadow: "0 0 10px rgba(255,255,255,0.8)",
+            pointerEvents: "none",
+          }}
+        >
+          {cueSymbol}
+        </div>
+      )}
+    </button>
+  );
+}
+
+export default InstructionCueButton;
