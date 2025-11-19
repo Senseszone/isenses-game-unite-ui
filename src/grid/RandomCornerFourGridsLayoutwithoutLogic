@@ -1,0 +1,125 @@
+/** RandomCornerFourGridsLayout – UI-only 4×(5×5) grid s pozicí řízenou zvenku (vhodné pro random přes hru) */
+
+import React from "react";
+import ButtonCell from "../ui/ButtonCell";
+import InstructionCueButton from "../ui/InstructionCueButton";
+
+const CELL_SIZE = 166;
+const GRID_ROWS = 5;
+const GRID_COLS = 5;
+const GAP_PX = 12;
+
+const GRID_WIDTH = GRID_COLS * CELL_SIZE + (GRID_COLS - 1) * GAP_PX;
+const GRID_HEIGHT = GRID_ROWS * CELL_SIZE + (GRID_ROWS - 1) * GAP_PX;
+
+/**
+ * props:
+ *  cueProps – props pro InstructionCueButton (barva, symbol…)
+ *  grids[0..3] – 4× pole 25 buněk { color, uiState, showSuccess, disabled }
+ *  positions[0..3] – volitelné absolute pozice pro každý grid
+ *    např. { top: 32, left: 32 } nebo { bottom: 40, right: 80 }
+ *  pokud positions není, použijí se klasické rohy s cornerMarginPx
+ */
+function DiagonalCornerFourGridsLayout({
+  cueProps = {},
+  grids = [[], [], [], []],
+  onCellClick,
+  disabled = false,
+  gapPx = GAP_PX,
+  cornerMarginPx = 32,
+  positions = null,   // sem může hra poslat random pozice
+}) {
+  const renderGrid = (gridIndex, fallbackCorner) => {
+    const cells = grids[gridIndex] || [];
+    const baseIdx = gridIndex * GRID_ROWS * GRID_COLS; // 0,25,50,75
+
+    const commonStyle = {
+      position: "absolute",
+      width: GRID_WIDTH,
+      height: GRID_HEIGHT,
+      display: "grid",
+      gridTemplateColumns: `repeat(${GRID_COLS}, ${CELL_SIZE}px)`,
+      gridAutoRows: `${CELL_SIZE}px`,
+      columnGap: gapPx,
+      rowGap: gapPx,
+    };
+
+    // 1) pokud hra dodá positions[gridIndex], použijeme to
+    if (positions && positions[gridIndex]) {
+      return (
+        <div key={gridIndex} style={{ ...commonStyle, ...positions[gridIndex] }}>
+          {Array.from({ length: GRID_ROWS * GRID_COLS }, (_, i) => {
+            const globalIdx = baseIdx + i + 1;
+            const cfg = cells[i] || {};
+            return (
+              <ButtonCell
+                key={globalIdx}
+                idx={globalIdx}
+                size={CELL_SIZE}
+                color={cfg.color ?? null}
+                uiState={cfg.uiState ?? "none"}
+                showSuccess={cfg.showSuccess ?? false}
+                disabled={disabled || cfg.disabled}
+                onClick={onCellClick}
+              />
+            );
+          })}
+        </div>
+      );
+    }
+
+    // 2) fallback: klasické rohy
+    const cornerStyle =
+      fallbackCorner === "top-left"
+        ? { top: cornerMarginPx, left: cornerMarginPx }
+        : fallbackCorner === "top-right"
+        ? { top: cornerMarginPx, right: cornerMarginPx }
+        : fallbackCorner === "bottom-left"
+        ? { bottom: cornerMarginPx, left: cornerMarginPx }
+        : { bottom: cornerMarginPx, right: cornerMarginPx };
+
+    return (
+      <div key={fallbackCorner} style={{ ...commonStyle, ...cornerStyle }}>
+        {Array.from({ length: GRID_ROWS * GRID_COLS }, (_, i) => {
+          const globalIdx = baseIdx + i + 1;
+          const cfg = cells[i] || {};
+          return (
+            <ButtonCell
+              key={globalIdx}
+              idx={globalIdx}
+              size={CELL_SIZE}
+              color={cfg.color ?? null}
+              uiState={cfg.uiState ?? "none"}
+              showSuccess={cfg.showSuccess ?? false}
+              disabled={disabled || cfg.disabled}
+              onClick={onCellClick}
+            />
+          );
+        })}
+      </div>
+    );
+  };
+
+  return (
+    <div style={{ position: "relative", width: "100%", height: "100%" }}>
+      {/* centrum – vždy uprostřed playfieldu GameContainer4K */}
+      <div
+        style={{
+          position: "absolute",
+          left: "50%",
+          top: "50%",
+          transform: "translate(-50%, -50%)",
+        }}
+      >
+        <InstructionCueButton {...cueProps} />
+      </div>
+
+      {renderGrid(0, "top-left")}
+      {renderGrid(1, "top-right")}
+      {renderGrid(2, "bottom-left")}
+      {renderGrid(3, "bottom-right")}
+    </div>
+  );
+}
+
+export default DiagonalCornerFourGridsLayout;
