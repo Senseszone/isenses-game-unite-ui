@@ -1,4 +1,24 @@
 // src/layout/GameContainer4K.jsx
+/**
+ * GameContainer4K
+ * Standardní 4K kontejner pro všechny iSenses hry.
+ *
+ * Rozměry:
+ * - Scéna: 3840×2160 px
+ * - Herní pole: 3520×1840 px
+ * - Okraje: 160 px
+ *
+ * Účel:
+ * - jednotný vzhled a struktura UI
+ * - bez herní logiky, pouze vizuální rámec
+ * - children = layout hry (grid, random, tlačítka)
+ *
+ * Použití:
+ * <GameContainer4K title="Název" timeLeftSec={30}>
+ *    {layout}
+ * </GameContainer4K>
+ */
+
 import React from "react";
 
 export const SCREEN_W = 3840;
